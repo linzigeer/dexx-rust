@@ -1,0 +1,90 @@
+debug: true
+http_listen: "0.0.0.0:8902"
+
+mysql:
+  host: "127.0.0.1:4000"
+  user: "root"
+  password: ""
+  database: "dexx"
+  charset: "utf8mb4"
+
+redis:
+  host: "127.0.0.1:6379"
+  user: ""
+  password: ""
+  default_db: 1
+
+endpoint:
+  http:
+    eth: "https://mainnet.infura.io/v3/0f29d6898e9148ada3c2f395cdbb5873"
+  wss:
+    eth: "wss://mainnet.infura.io/ws/v3/0f29d6898e9148ada3c2f395cdbb5873"
+
+solEndPoint:
+  http:
+    - "https://api.mainnet-beta.solana.com"
+  wss:
+    - "wss://api.mainnet-beta.solana.com"
+  rpc_limit: 100
+
+jwt_token:
+  sign: "jincancan"
+  expire: 31536000
+
+mailslurp_key:
+  - "test_key"
+
+oklink:
+  apiLimit: 100
+  apiHost: "https://www.oklink.com"
+  apikey:
+    - "test_key"
+
+gecko:
+  apikey: "test_key"
+  apihost: "https://api.coingecko.com"
+
+mailgun:
+  apikey: "test_key"
+  domain: "test.com"
+  sender: "test@test.com"
+
+commission:
+  dex: 0.01
+  l1: 0.02
+  l2: 0.03
+
+commission_wallet:
+  eth: "0x123"
+
+draw_wallet:
+  eth: "0x456"
+
+draw_min:
+  eth: 0.1
+
+smartdaili:
+  token: "test_token"
+  host: "test_host"
+
+clickhouse:
+  host: "127.0.0.1:9000"
+  user: "default"
+  password: ""
+
+s3:
+  username: "test"
+  access_key_id: "test"
+  secret_access_key: "test"
+  region: "us-east-1"
+
+faucet_owner: "test_owner"
+cook_contract: "test_contract"
+raydium_launchpad_program: "test_program"
+raydium_platform_id: "test_platform"
+cpmm_program: "test_cpmm"
+cook_complate: 100.0
+
+cook_api:
+  base_url: "https://api.cooking.city"
+  api_key: "test_key"
