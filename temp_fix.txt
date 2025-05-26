@@ -1,0 +1,7 @@
+        CryptoUtils::generate_jwt(
+            user.id,
+            Some(user.email.clone()),
+            None, // wallet
+            &self.config.jwt_token.sign,
+            self.config.jwt_token.expire,
+        )

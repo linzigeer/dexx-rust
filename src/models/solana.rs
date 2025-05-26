@@ -3,7 +3,7 @@ use chrono::{DateTime, Utc};
 use sqlx::FromRow;
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct TokenSocial {
     pub twitter: Option<String>,
     pub website: Option<String>,

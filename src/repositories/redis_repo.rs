@@ -45,7 +45,7 @@ impl RedisRepository {
         
         match ttl_seconds {
             Some(ttl) => {
-                self.connection.set_ex(key, serialized, ttl).await?;
+                self.connection.set_ex(key, serialized, ttl.try_into().unwrap()).await?;
             }
             None => {
                 self.connection.set(key, serialized).await?;
@@ -73,7 +73,7 @@ impl RedisRepository {
     pub async fn set_string(&mut self, key: &str, value: &str, ttl_seconds: Option<usize>) -> AppResult<()> {
         match ttl_seconds {
             Some(ttl) => {
-                self.connection.set_ex(key, value, ttl).await?;
+                self.connection.set_ex(key, value, ttl.try_into().unwrap()).await?;
             }
             None => {
                 self.connection.set(key, value).await?;
@@ -88,7 +88,7 @@ impl RedisRepository {
     }
     
     pub async fn health_check(&mut self) -> AppResult<()> {
-        let _: String = self.connection.ping().await?;
+        let _: String = redis::cmd("PING").query_async(&mut self.connection).await?;
         Ok(())
     }
     

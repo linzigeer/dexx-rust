@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use chrono::{Utc, Duration};
 use crate::utils::AppResult;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Claims {
     pub sub: String,  // 用户ID
     pub exp: i64,     // 过期时间

@@ -1,63 +1,51 @@
-pub mod user;
-pub mod solana;
-pub mod trade;
-pub mod data;
-pub mod message;
-
 use std::sync::Arc;
 use crate::config::Config;
-use crate::repositories::Repositories;
-use crate::sdk;
+use crate::repositories::RepositoriesImpl;
 use crate::utils::AppResult;
+
+pub mod user;
+pub mod solana;
 
 pub use user::*;
 pub use solana::*;
-pub use trade::*;
-pub use data::*;
-pub use message::*;
 
-pub struct Services {
-    pub user: UserService,
-    pub solana: SolanaService,
-    pub trade: TradeService,
-    pub data: DataService,
-    pub message: MessageService,
+/// 服务层实现
+pub struct ServicesImpl {
+    user_service: UserServiceImpl,
+    solana_service: SolanaServiceImpl,
 }
 
-impl Services {
+impl ServicesImpl {
+    /// 创建新的服务层实例
     pub async fn new(
-        config: Config,
-        repositories: Arc<Repositories>,
-        solana_sdk: Arc<dyn sdk::SolanaSdk>,
-        ethereum_sdk: Arc<dyn sdk::EthereumSdk>,
-        gecko_sdk: Arc<dyn sdk::GeckoSdk>,
-        binance_sdk: Arc<dyn sdk::BinanceSdk>,
-    ) -> AppResult<Self> {
-        let message_service = MessageService::new();
-        
-        Ok(Self {
-            user: UserService::new(config.clone(), repositories.clone()),
-            solana: SolanaService::new(
-                config.clone(),
-                repositories.clone(),
-                solana_sdk,
-                gecko_sdk.clone(),
-                binance_sdk,
-                message_service.clone(),
-            ),
-            trade: TradeService::new(
-                config.clone(),
-                repositories.clone(),
-                solana_sdk,
-                ethereum_sdk,
-                message_service.clone(),
-            ),
-            data: DataService::new(
-                config.clone(),
-                repositories.clone(),
-                gecko_sdk,
-            ),
-            message: message_service,
-        })
+        config: Arc<Config>,
+        repositories: Arc<RepositoriesImpl>,
+    ) -> AppResult<Arc<Self>> {
+        // 创建用户服务
+        let user_service = UserServiceImpl::new(
+            config.clone(),
+            repositories.clone(),
+        ).await?;
+
+        // 创建Solana服务
+        let solana_service = SolanaServiceImpl::new(
+            config.clone(),
+            repositories.clone(),
+        ).await?;
+
+        let services = Self {
+            user_service,
+            solana_service,
+        };
+
+        Ok(Arc::new(services))
+    }
+
+    pub fn user_service(&self) -> &UserServiceImpl {
+        &self.user_service
+    }
+
+    pub fn solana_service(&self) -> &SolanaServiceImpl {
+        &self.solana_service
     }
 }

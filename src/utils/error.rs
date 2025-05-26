@@ -11,14 +11,35 @@ pub enum AppError {
     #[error("Configuration error: {0}")]
     Config(#[from] config::ConfigError),
     
-    #[error("Serialization error: {0}")]
-    Serialization(#[from] serde_json::Error),
+    #[error("JWT error: {0}")]
+    Jwt(String),
     
-    #[error("HTTP client error: {0}")]
-    HttpClient(#[from] reqwest::Error),
+    #[error("Crypto error: {0}")]
+    Crypto(String),
+    
+    #[error("HTTP error: {0}")]
+    Http(String),
+    
+    #[error("Serialization error: {0}")]
+    Serde(#[from] serde_json::Error),
     
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
+    
+    #[error("Not found: {0}")]
+    NotFound(String),
+    
+    #[error("Unauthorized: {0}")]
+    Unauthorized(String),
+    
+    #[error("Forbidden: {0}")]
+    Forbidden(String),
+    
+    #[error("Bad request: {0}")]
+    BadRequest(String),
+    
+    #[error("Internal server error: {0}")]
+    Internal(String),
     
     #[error("Solana client error: {0}")]
     SolanaClient(String),
@@ -40,9 +61,6 @@ pub enum AppError {
     
     #[error("External service error: {service}: {message}")]
     ExternalService { service: String, message: String },
-    
-    #[error("Internal server error: {0}")]
-    Internal(#[from] anyhow::Error),
 }
 
 impl AppError {
@@ -84,6 +102,38 @@ impl AppError {
     pub fn ethereum_client(message: impl Into<String>) -> Self {
         Self::EthereumClient(message.into())
     }
+    
+    pub fn jwt(message: impl Into<String>) -> Self {
+        Self::Jwt(message.into())
+    }
+    
+    pub fn crypto(message: impl Into<String>) -> Self {
+        Self::Crypto(message.into())
+    }
+    
+    pub fn http(message: impl Into<String>) -> Self {
+        Self::Http(message.into())
+    }
+    
+    pub fn not_found(message: impl Into<String>) -> Self {
+        Self::NotFound(message.into())
+    }
+    
+    pub fn unauthorized(message: impl Into<String>) -> Self {
+        Self::Unauthorized(message.into())
+    }
+    
+    pub fn forbidden(message: impl Into<String>) -> Self {
+        Self::Forbidden(message.into())
+    }
+    
+    pub fn bad_request(message: impl Into<String>) -> Self {
+        Self::BadRequest(message.into())
+    }
+    
+    pub fn internal(message: impl Into<String>) -> Self {
+        Self::Internal(message.into())
+    }
 }
 
 pub type AppResult<T> = Result<T, AppError>;
@@ -100,6 +150,10 @@ impl axum::response::IntoResponse for AppError {
             AppError::Authorization { .. } => (StatusCode::FORBIDDEN, self.to_string()),
             AppError::Validation { .. } => (StatusCode::BAD_REQUEST, self.to_string()),
             AppError::Business { .. } => (StatusCode::BAD_REQUEST, self.to_string()),
+            AppError::Unauthorized(_) => (StatusCode::UNAUTHORIZED, self.to_string()),
+            AppError::Forbidden(_) => (StatusCode::FORBIDDEN, self.to_string()),
+            AppError::BadRequest(_) => (StatusCode::BAD_REQUEST, self.to_string()),
+            AppError::NotFound(_) => (StatusCode::NOT_FOUND, self.to_string()),
             AppError::Database(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()),
             AppError::Redis(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Cache error".to_string()),
             AppError::ExternalService { .. } => (StatusCode::BAD_GATEWAY, self.to_string()),
@@ -119,6 +173,20 @@ impl axum::response::IntoResponse for AppError {
 // JWT错误处理
 impl From<jsonwebtoken::errors::Error> for AppError {
     fn from(err: jsonwebtoken::errors::Error) -> Self {
-        AppError::authentication(format!("JWT error: {}", err))
+        AppError::jwt(format!("JWT error: {}", err))
+    }
+}
+
+// HTTP客户端错误处理
+impl From<reqwest::Error> for AppError {
+    fn from(err: reqwest::Error) -> Self {
+        AppError::http(format!("HTTP client error: {}", err))
+    }
+}
+
+// Anyhow错误处理
+impl From<anyhow::Error> for AppError {
+    fn from(err: anyhow::Error) -> Self {
+        AppError::internal(format!("Internal error: {}", err))
     }
 }
