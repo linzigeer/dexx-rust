@@ -1,10 +1,8 @@
 use axum::{
-    http::StatusCode,
     response::{IntoResponse, Response},
     Json,
 };
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
 use crate::utils::AppError;
 
 /// 标准API响应结构
@@ -80,6 +78,12 @@ impl From<AppError> for ApiResponse<()> {
             AppError::Authentication { message } => (401, message),
             AppError::Authorization { message } => (403, message),
             AppError::Validation { message } => (400, message),
+        AppError::Business { message } => (400, message),
+        AppError::ExternalService { service, message } => (502, format!("{}: {}", service, message)),
+        AppError::BlockchainError(msg) => (502, format!("Blockchain error: {}", msg)),
+        AppError::PriceServiceError(msg) => (502, format!("Price service error: {}", msg)),
+        AppError::WalletVerificationError(msg) => (400, format!("Wallet verification error: {}", msg)),
+        AppError::TransactionParsingError(msg) => (400, format!("Transaction parsing error: {}", msg)),
             AppError::Business { message } => (400, message),
             AppError::ExternalService { service, message } => (502, format!("{}: {}", service, message)),
         };

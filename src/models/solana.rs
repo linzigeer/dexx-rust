@@ -246,3 +246,142 @@ impl From<SolTransaction> for TransactionResponse {
         }
     }
 }
+
+// API请求和响应类型
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TokenInfoRequest {
+    pub mint: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TokenPriceRequest {
+    pub mint: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SearchRequest {
+    pub query: String,
+    pub limit: Option<u32>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RankRequest {
+    pub sort_by: Option<String>,
+    pub limit: Option<u32>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TokenHolderRequest {
+    pub mint: String,
+    pub limit: Option<u32>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TradeLatestRequest {
+    pub mint: String,
+    pub limit: Option<u32>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct WalletPositionRequest {
+    pub wallet: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TokenPositionRequest {
+    pub mint: String,
+    pub wallet: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MultiTokenInfoRequest {
+    pub mints: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TransactionVolumeRequest {
+    pub mint: String,
+    pub period: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DailyTransactionVolumeRequest {
+    pub mint: String,
+    pub days: Option<u32>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct WebhookRequest {
+    pub event_type: String,
+    pub data: serde_json::Value,
+}
+
+// API响应类型
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TokenHolder {
+    pub holder: String,
+    pub amount: f64,
+    pub percentage: f64,
+    pub value_usd: f64,
+}
+
+impl From<SolHolder> for TokenHolder {
+    fn from(holder: SolHolder) -> Self {
+        Self {
+            holder: holder.holder,
+            amount: holder.amount,
+            percentage: 0.0, // 需要计算
+            value_usd: holder.amount * holder.price_usd,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Trade {
+    pub signature: String,
+    pub mint: String,
+    pub trader: String,
+    pub token_amount: f64,
+    pub sol_amount: f64,
+    pub price_usd: f64,
+    pub is_buy: bool,
+    pub timestamp: DateTime<Utc>,
+}
+
+impl From<SolTransaction> for Trade {
+    fn from(tx: SolTransaction) -> Self {
+        Self {
+            signature: tx.signature,
+            mint: tx.mint,
+            trader: tx.signer,
+            token_amount: tx.token_amount,
+            sol_amount: tx.sol_amount,
+            price_usd: tx.new_price_usd,
+            is_buy: tx.is_buy,
+            timestamp: tx.create_time,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Position {
+    pub mint: String,
+    pub wallet: String,
+    pub amount: f64,
+    pub value_usd: f64,
+    pub pnl: f64,
+    pub pnl_percentage: f64,
+}
+
+impl From<SolHolder> for Position {
+    fn from(holder: SolHolder) -> Self {
+        Self {
+            mint: holder.mint,
+            wallet: holder.holder,
+            amount: holder.amount,
+            value_usd: holder.amount * holder.price_usd,
+            pnl: holder.pnl,
+            pnl_percentage: if holder.bet > 0.0 { holder.pnl / holder.bet * 100.0 } else { 0.0 },
+        }
+    }
+}

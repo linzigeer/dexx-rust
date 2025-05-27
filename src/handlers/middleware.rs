@@ -1,13 +1,13 @@
 use axum::response::IntoResponse;
 use axum::{
-    extract::{Request, State},
+    extract::Request,
     http::{HeaderMap, StatusCode},
     middleware::Next,
     response::Response,
     Json,
 };
 use crate::handlers::response::{error, error_codes};
-use crate::utils::{AppResult, CryptoUtils};
+use crate::utils::CryptoUtils;
 use crate::models::user::User;
 
 /// JWT认证中间件
@@ -123,11 +123,8 @@ pub fn get_user_from_request(request: &Request) -> Option<&User> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use axum::{
-        body::Body,
-        http::{Method, Request},
-    };
+    
+    
 
     #[tokio::test]
     async fn test_cors_middleware() {

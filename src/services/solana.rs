@@ -2,7 +2,7 @@ use std::sync::Arc;
 use crate::config::Config;
 use crate::repositories::RepositoriesImpl;
 use crate::models::solana::*;
-use crate::utils::{AppResult, AppError};
+use crate::utils::AppResult;
 use serde::{Deserialize, Serialize};
 
 /// 代币查询请求

@@ -45,10 +45,10 @@ impl RedisRepository {
         
         match ttl_seconds {
             Some(ttl) => {
-                self.connection.set_ex(key, serialized, ttl.try_into().unwrap()).await?;
+                self.connection.set_ex::<_, _, ()>(key, serialized, ttl.try_into().unwrap()).await?;
             }
             None => {
-                self.connection.set(key, serialized).await?;
+                self.connection.set::<_, _, ()>(key, serialized).await?;
             }
         }
         
@@ -56,7 +56,7 @@ impl RedisRepository {
     }
     
     pub async fn delete(&mut self, key: &str) -> AppResult<()> {
-        self.connection.del(key).await?;
+        self.connection.del::<_, ()>(key).await?;
         Ok(())
     }
     
@@ -73,10 +73,10 @@ impl RedisRepository {
     pub async fn set_string(&mut self, key: &str, value: &str, ttl_seconds: Option<usize>) -> AppResult<()> {
         match ttl_seconds {
             Some(ttl) => {
-                self.connection.set_ex(key, value, ttl.try_into().unwrap()).await?;
+                self.connection.set_ex::<_, _, ()>(key, value, ttl.try_into().unwrap()).await?;
             }
             None => {
-                self.connection.set(key, value).await?;
+                self.connection.set::<_, _, ()>(key, value).await?;
             }
         }
         Ok(())

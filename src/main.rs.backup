@@ -4,14 +4,12 @@ mod models;
 mod repositories;
 mod services;
 mod handlers;
-mod blockchain;
 
 use std::sync::Arc;
 use config::Config;
 use utils::AppResult;
 use repositories::RepositoriesImpl;
 use services::ServicesImpl;
-use blockchain::BlockchainServices;
 use handlers::{AppState, create_routes, middleware::*};
 use tracing_subscriber::fmt;
 use tower::ServiceBuilder;
@@ -25,7 +23,6 @@ async fn main() -> AppResult<()> {
     // 打印版本信息
     println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     println!("dexx-rust version 0.1.0 - API Server");
-    println!("🚀 Checkpoint 6: 区块链集成");
     println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     println!();
     
@@ -41,16 +38,6 @@ async fn main() -> AppResult<()> {
     let repositories = RepositoriesImpl::new(config.clone()).await?;
     tracing::info!("Database and Redis connections established");
     
-    // 初始化区块链服务
-    let blockchain_services = BlockchainServices::new(config.clone()).await?;
-    tracing::info!("Blockchain services initialized successfully");
-    
-    // 启动区块链后台服务
-    if config.solana.monitoring.enabled {
-        blockchain_services.start_background_services().await?;
-        tracing::info!("Blockchain background services started");
-    }
-    
     // 初始化服务层
     let services = ServicesImpl::new(config.clone(), repositories).await?;
     tracing::info!("Services initialized successfully");
@@ -59,7 +46,6 @@ async fn main() -> AppResult<()> {
     let app_state = AppState {
         config: config.clone(),
         services,
-        blockchain_services: Some(Arc::new(blockchain_services)),
     };
     
     // 创建路由
@@ -79,7 +65,6 @@ async fn main() -> AppResult<()> {
     tracing::info!("📡 Health check: http://{}/health", config.http_listen);
     tracing::info!("👤 User API: http://{}/user/*", config.http_listen);
     tracing::info!("🔗 Solana API: http://{}/v2/solana/*", config.http_listen);
-    tracing::info!("⛓️  Blockchain services: {}", if config.solana.monitoring.enabled { "Enabled" } else { "Disabled" });
     
     axum::serve(listener, app).await?;
     

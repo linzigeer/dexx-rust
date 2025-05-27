@@ -53,26 +53,7 @@ jsonwebtoken = "9.0"
 # 工具
 once_cell = "1.19"
 rand = "0.8"
-ed25519-dalek = "2.0"
-bs58 = "0.5"
-base64 = "0.21"
 
 [dev-dependencies]
 # 测试工具
 axum-test = "14.0"
-
-# 区块链集成 - 使用HTTP客户端避免依赖冲突
-# WebSocket支持
-tokio-tungstenite = "0.21"
-
-# Base58编码
-bs58 = "0.5"
-
-# 加密相关
-ed25519-dalek = "2.0"
-
-# 随机数生成
-rand = "0.8"
-
-# Base64编码
-base64 = "0.21"

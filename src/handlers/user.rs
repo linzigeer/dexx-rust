@@ -6,8 +6,6 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use crate::handlers::{response::*, AppState};
 use crate::services::user::*;
-use crate::models::user::User;
-use crate::utils::AppResult;
 
 /// 钱包登录请求
 #[derive(Debug, Deserialize)]
@@ -172,8 +170,8 @@ impl From<EmailLoginRequest> for crate::services::user::EmailLoginRequest {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use axum_test::TestServer;
+    
+    
 
     #[tokio::test]
     async fn test_email_login() {
